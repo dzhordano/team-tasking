@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package task.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "dzhordano/team-tasking/services/tasks/pkg/grpc/task/v1;task_v1";
+
+service TaskServiceV1 {
+  rpc CreateProject(CreateProjectRequest) returns (google.protobuf.Empty);
+  rpc GetUserProjects(GetUserProjectsRequest) returns (GetUserProjectsResponse);
+  rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty);
+  
+  rpc CreateTask(CreateTaskRequest) returns (google.protobuf.Empty);
+  rpc ListUserTasks(ListUserTasksRequest) returns (ListUserTasksResponse);
+  rpc ListProjectTasks(ListProjectTasksRequest) returns (ListProjectTasksResponse);
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (google.protobuf.Empty);
+  rpc DeleteTask(DeleteTaskRequest) returns (google.protobuf.Empty);
+  
+  rpc CreateComment(CreateCommentRequest) returns (google.protobuf.Empty);
+  rpc ListUserComments(ListUserCommentsRequest) returns (ListUserCommentsResponse);
+  rpc ListUserTaskComments(ListUserTaskCommentsRequest) returns (ListUserTaskCommentsResponse);
+  rpc UpdateComment(UpdateCommentRequest) returns (google.protobuf.Empty);
+  rpc DeleteComment(DeleteCommentRequest) returns (google.protobuf.Empty);
+}
+
+message Project {
+  string id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message CreateProjectRequest {
+  string name = 1;
+}
+
+message GetUserProjectsRequest {
+  string user_id = 1;
+}
+
+message GetUserProjectsResponse {
+  repeated Project projects = 1;
+}
+
+message DeleteProjectRequest {
+  string project_id = 1;
+}
+
+message Task {
+  string id = 1;
+  string project_id = 2;
+  string title = 3;
+  string description = 4;
+  string status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp deadline = 8;
+}
+
+message CreateTaskRequest {
+  string project_id = 1;
+  string title = 2;
+  string description = 3;
+  string status = 4;
+  google.protobuf.Timestamp deadline = 5;
+}
+
+message ListUserTasksRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+
+message ListUserTasksResponse {
+  repeated Task tasks = 1;
+}
+
+message ListProjectTasksRequest {
+  string project_id = 1;
+  uint64 limit = 2;
+  uint64 offset = 3;
+}
+
+message ListProjectTasksResponse {
+  repeated Task tasks = 1;
+}
+
+message GetTaskRequest {
+  string task_id = 1;
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+message UpdateTaskRequest {
+  string task_id = 1;
+  string title = 2;
+  string description = 3;
+  string status = 4;
+  google.protobuf.Timestamp deadline = 5;
+}
+
+message DeleteTaskRequest {
+  string task_id = 1;
+}
+
+message Comment {
+  string id = 1;
+  string task_id = 2;
+  string content = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message CreateCommentRequest {
+  string task_id = 1;
+  string content = 2;
+}
+
+message ListUserCommentsRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+
+message ListUserCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message ListUserTaskCommentsRequest {
+  string task_id = 1;
+}
+
+message ListUserTaskCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message UpdateCommentRequest {
+  string comment_id = 1;
+  string content = 2;
+}
+
+message DeleteCommentRequest {
+  string comment_id = 1;
+}
