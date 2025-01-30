@@ -20,3 +20,14 @@ generate-task-api-v1:
 	--go-grpc_out=pkg/grpc/task/v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=.bin/protoc-gen-go-grpc \
 	api/grpc/task/v1/task.proto
+
+generate-rsa256-keypair:
+	ssh-keygen -t rsa -b 4096 -m PEM -f jwt.key
+	openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
+
+include .env
+init-db:
+	docker run --name=tasks-db -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p ${POSTGRES_PORT}:5432 -d postgres
+
+stop-db:
+	docker rm -f tasks-db
