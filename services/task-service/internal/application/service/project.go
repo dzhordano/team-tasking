@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dzhordano/team-tasking/services/tasks/internal/application/interfaces"
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain"
@@ -19,8 +20,10 @@ func NewProjectService(projectRepository repository.ProjectRepository) interface
 	}
 }
 
-func (s *projectService) CreateProject(ctx context.Context, title, description string, ownerID uuid.UUID) error {
-	panic("TODO")
+func (s *projectService) CreateProject(ctx context.Context, title string, ownerID uuid.UUID) error {
+	fmt.Println("You called CreateProject method!")
+
+	return nil
 }
 
 func (s *projectService) ListProjects(ctx context.Context) ([]*domain.Project, error) {

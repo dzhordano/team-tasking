@@ -15,8 +15,8 @@ generate:
 generate-task-api-v1:
 	mkdir -p pkg/grpc/task/v1
 	protoc --proto_path api/grpc/task/v1 \
-	--go_out=pkg/grpc/task/v1/task_v1 --go_opt=paths=source_relative \
+	--go_out=pkg/grpc/task/v1 --go_opt=paths=source_relative \
 	--plugin=protoc-gen-go=.bin/protoc-gen-go \
-	--go-grpc_out=pkg/grpc/task/v1/task_v1 --go-grpc_opt=paths=source_relative \
+	--go-grpc_out=pkg/grpc/task/v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=.bin/protoc-gen-go-grpc \
 	api/grpc/task/v1/task.proto

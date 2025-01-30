@@ -8,7 +8,7 @@ import (
 )
 
 type ProjectService interface {
-	CreateProject(ctx context.Context, title, description string, ownerID uuid.UUID) error
+	CreateProject(ctx context.Context, name string, ownerID uuid.UUID) error
 	GetUserProjects(ctx context.Context, userID uuid.UUID) ([]*domain.Project, error)
 	DeleteProject(ctx context.Context, ownerID, projectID uuid.UUID) error
 }

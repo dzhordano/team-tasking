@@ -7,21 +7,26 @@ import "google/protobuf/empty.proto";
 
 option go_package = "dzhordano/team-tasking/services/tasks/pkg/grpc/task/v1;task_v1";
 
-service TaskServiceV1 {
+service ProjectServiceV1 {
   rpc CreateProject(CreateProjectRequest) returns (google.protobuf.Empty);
   rpc GetUserProjects(GetUserProjectsRequest) returns (GetUserProjectsResponse);
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty);
-  
+}
+
+service TaskServiceV1 {
   rpc CreateTask(CreateTaskRequest) returns (google.protobuf.Empty);
-  rpc ListUserTasks(ListUserTasksRequest) returns (ListUserTasksResponse);
-  rpc ListProjectTasks(ListProjectTasksRequest) returns (ListProjectTasksResponse);
+  rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty);
+  rpc GetUserTasks(GetUserTasksRequest) returns (GetUserTasksResponse);
+  rpc GetProjectTasks(GetProjectTasksRequest) returns (GetProjectTasksResponse);
   rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
   rpc UpdateTask(UpdateTaskRequest) returns (google.protobuf.Empty);
   rpc DeleteTask(DeleteTaskRequest) returns (google.protobuf.Empty);
-  
+}
+
+service CommentServiceV1 {
   rpc CreateComment(CreateCommentRequest) returns (google.protobuf.Empty);
-  rpc ListUserComments(ListUserCommentsRequest) returns (ListUserCommentsResponse);
-  rpc ListUserTaskComments(ListUserTaskCommentsRequest) returns (ListUserTaskCommentsResponse);
+  rpc GetUserComments(GetUserCommentsRequest) returns (GetUserCommentsResponse);
+  rpc GetUserTaskComments(GetUserTaskCommentsRequest) returns (GetUserTaskCommentsResponse);
   rpc UpdateComment(UpdateCommentRequest) returns (google.protobuf.Empty);
   rpc DeleteComment(DeleteCommentRequest) returns (google.protobuf.Empty);
 }
@@ -52,7 +57,7 @@ message DeleteProjectRequest {
 message Task {
   string id = 1;
   string project_id = 2;
-  string title = 3;
+  string title = 3; 
   string description = 4;
   string status = 5;
   google.protobuf.Timestamp created_at = 6;
@@ -68,22 +73,27 @@ message CreateTaskRequest {
   google.protobuf.Timestamp deadline = 5;
 }
 
-message ListUserTasksRequest {
+message AssignTaskRequest {
+  string task_id = 1;
+  string assignee_id = 2;
+}
+
+message GetUserTasksRequest {
   uint64 limit = 1;
   uint64 offset = 2;
 }
 
-message ListUserTasksResponse {
+message GetUserTasksResponse {
   repeated Task tasks = 1;
 }
 
-message ListProjectTasksRequest {
+message GetProjectTasksRequest {
   string project_id = 1;
   uint64 limit = 2;
   uint64 offset = 3;
 }
 
-message ListProjectTasksResponse {
+message GetProjectTasksResponse {
   repeated Task tasks = 1;
 }
 
@@ -120,20 +130,20 @@ message CreateCommentRequest {
   string content = 2;
 }
 
-message ListUserCommentsRequest {
+message GetUserCommentsRequest {
   uint64 limit = 1;
   uint64 offset = 2;
 }
 
-message ListUserCommentsResponse {
+message GetUserCommentsResponse {
   repeated Comment comments = 1;
 }
 
-message ListUserTaskCommentsRequest {
+message GetUserTaskCommentsRequest {
   string task_id = 1;
 }
 
-message ListUserTaskCommentsResponse {
+message GetUserTaskCommentsResponse {
   repeated Comment comments = 1;
 }
 
