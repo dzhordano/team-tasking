@@ -1,0 +1,32 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS projects (
+  id UUID NOT NULL PRIMARY KEY,
+  owner_id UUID NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TYPE task_status AS ENUM ('TODO', 'IN_PROGRESS', 'DONE', 'ARCHIVED');
+
+CREATE TABLE IF NOT EXISTS tasks (
+  id UUID NOT NULL PRIMARY KEY,
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  assignee_id UUID NOT NULL,
+  title TEXT NOT NULL UNIQUE,
+  description TEXT NOT NULL,
+  status task_status NOT NULL,
+  deadline TIMESTAMP,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id UUID NOT NULL PRIMARY KEY,
+  task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL
+);

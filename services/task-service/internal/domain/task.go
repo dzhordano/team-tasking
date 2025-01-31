@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,9 +19,9 @@ type Task struct {
 	Title       string
 	Description string
 	Status      TaskStatus
+	Deadline    time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	Deadline    time.Time
 }
 
 type TaskStatus string
@@ -64,10 +65,14 @@ func NewTask(taskID, projectID uuid.UUID, title, description string, deadline ti
 
 func (t *Task) Validate() error {
 	if t.Title == "" {
-		return errors.New("title is required")
+		return fmt.Errorf("%s : %w", "title is required", ErrInvalidArgument)
 	}
 	if t.Description == "" {
-		return errors.New("description is required")
+		return fmt.Errorf("%s : %w", "description is required", ErrInvalidArgument)
 	}
+	if t.Deadline.Compare(time.Now()) < 0 {
+		return fmt.Errorf("%s : %w", "deadline cannot be in the past", ErrInvalidArgument)
+	}
+
 	return nil
 }

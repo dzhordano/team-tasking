@@ -2,11 +2,17 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain"
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain/repository"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+const (
+	comments_table = "comments"
 )
 
 type PGCommentRepository struct {
@@ -20,6 +26,22 @@ func NewPGCommentRepository(db *pgxpool.Pool) repository.CommentRepository {
 }
 
 func (r *PGCommentRepository) Save(ctx context.Context, comment *domain.Comment) error {
+	const op = "repository.PGCommentRepository.Save"
+
+	insertBuilder := sq.Insert(comments_table).
+		Columns("id", "task_id", "author_id", "content", "created_at", "updated_at").
+		Values(comment.CommentID, comment.TaskID, comment.AuthorID, comment.Content, comment.CreatedAt, comment.UpdatedAt).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := insertBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	if _, err := r.db.Exec(ctx, query, args...); err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
 	return nil
 }
 

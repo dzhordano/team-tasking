@@ -23,7 +23,7 @@ func main() {
 	cfg := config.MustLoad()
 
 	logger := slog.New(
-		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 	)
 
 	pool, err := repository.NewPGXPool(context.Background(), cfg.PG.DSN)
@@ -36,9 +36,9 @@ func main() {
 	task_repo := repository.NewPGTaskRepository(pool)
 	comment_repo := repository.NewPGCommentRepository(pool)
 
-	project_service := services.NewProjectService(project_repo)
-	task_service := services.NewTaskService(task_repo, project_repo)
-	comment_service := services.NewCommentService(comment_repo)
+	project_service := services.NewProjectService(logger, project_repo)
+	task_service := services.NewTaskService(logger, task_repo, project_repo)
+	comment_service := services.NewCommentService(logger, comment_repo, task_repo)
 
 	grpc_server := grpc.NewServer(
 		logger,

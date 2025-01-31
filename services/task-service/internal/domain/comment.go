@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,11 +21,11 @@ func (c *Comment) SetContent(content string) {
 	c.UpdatedAt = time.Now()
 }
 
-func NewComment(commentID, authorID, taskID uuid.UUID, content string) *Comment {
+func NewComment(commentID, taskID, authorID uuid.UUID, content string) *Comment {
 	return &Comment{
 		CommentID: commentID,
-		AuthorID:  authorID,
 		TaskID:    taskID,
+		AuthorID:  authorID,
 		Content:   content,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -34,7 +34,7 @@ func NewComment(commentID, authorID, taskID uuid.UUID, content string) *Comment 
 
 func (c *Comment) Validate() error {
 	if c.Content == "" {
-		return errors.New("content is required")
+		return fmt.Errorf("%s : %w", "content is required", ErrInvalidArgument)
 	}
 	return nil
 }

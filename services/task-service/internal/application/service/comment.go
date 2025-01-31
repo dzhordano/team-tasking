@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/dzhordano/team-tasking/services/tasks/internal/application/interfaces"
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain"
@@ -10,30 +11,45 @@ import (
 )
 
 type commentService struct {
+	log               *slog.Logger
 	commentRepository repository.CommentRepository
+	taskRepository    repository.TaskRepository
 }
 
-func NewCommentService(commentRepository repository.CommentRepository) interfaces.CommentService {
+func NewCommentService(log *slog.Logger, commentRepository repository.CommentRepository, taskRepository repository.TaskRepository) interfaces.CommentService {
 	return &commentService{
+		log:               log,
 		commentRepository: commentRepository,
+		taskRepository:    taskRepository,
 	}
 }
 
 func (s *commentService) CreateComment(ctx context.Context, taskID uuid.UUID, authorID uuid.UUID, content string) error {
+	_, err := s.taskRepository.GetById(ctx, taskID)
+	if err != nil {
+		s.log.Error("task not found", slog.String("task_id", taskID.String()))
+		return err
+	}
+
 	commentID, err := uuid.NewUUID()
 	if err != nil {
+		s.log.Error("failed to generate comment id", slog.String("error", err.Error()))
 		return err
 	}
 
 	comment := domain.NewComment(commentID, taskID, authorID, content)
 
 	if err := comment.Validate(); err != nil {
+		s.log.Error("failed to validate comment", slog.String("error", err.Error()))
 		return err
 	}
 
 	if err := s.commentRepository.Save(ctx, comment); err != nil {
+		s.log.Error("failed to save comment", slog.String("error", err.Error()))
 		return err
 	}
+
+	s.log.Debug("comment created", slog.String("comment_id", commentID.String()))
 
 	return nil
 }

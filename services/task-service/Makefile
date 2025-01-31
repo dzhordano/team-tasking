@@ -26,8 +26,17 @@ generate-rsa256-keypair:
 	openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
 
 include .env
-init-db:
+init.db:
 	docker run --name=tasks-db -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p ${POSTGRES_PORT}:5432 -d postgres
 
-stop-db:
+stop.db:
 	docker rm -f tasks-db
+
+exec.db:
+	docker exec -it tasks-db bash -c "psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+
+migrate.up:
+	migrate -source file://migrations -database ${POSTGRES_MIGRATIONS_URL} up
+
+migrate.down:
+	migrate -source file://migrations -database ${POSTGRES_MIGRATIONS_URL} down

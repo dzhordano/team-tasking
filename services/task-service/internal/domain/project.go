@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,7 +27,7 @@ func NewProject(projectID, ownerID uuid.UUID, name string) *Project {
 
 func (p *Project) Validate() error {
 	if p.Name == "" {
-		return errors.New("name is required")
+		return fmt.Errorf("%s : %w", "name is required", ErrInvalidArgument)
 	}
 	return nil
 }

@@ -10,17 +10,33 @@ import (
 )
 
 func MapError(ctx context.Context, err error) error {
-	err = errors.Unwrap(err)
+	unwrappedErr := errors.Unwrap(err)
+	if unwrappedErr != nil {
+		err = unwrappedErr
+	}
 
 	switch {
 	case errors.Is(err, domain.ErrInvalidArgument):
 		return status.Error(codes.InvalidArgument, err.Error())
+	case errors.Is(err, domain.ErrInvalidUUID):
+		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, domain.ErrPermissionDenied):
 		return status.Error(codes.PermissionDenied, err.Error())
+
+	// Task Errors
 	case errors.Is(err, domain.ErrTaskNotFound):
 		return status.Error(codes.NotFound, err.Error())
 	case errors.Is(err, domain.ErrTaskAlreadyExists):
 		return status.Error(codes.AlreadyExists, err.Error())
+
+	// Project Errors
+	case errors.Is(err, domain.ErrProjectNotFound):
+		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, domain.ErrProjectAlreadyExists):
+		return status.Error(codes.AlreadyExists, err.Error())
+
+	// Comment Errors
+
 	default:
 		return status.Error(codes.Internal, "internal server error")
 	}
