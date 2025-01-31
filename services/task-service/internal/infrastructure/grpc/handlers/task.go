@@ -36,9 +36,6 @@ func (h *TaskHandler) CreateTask(ctx context.Context, req *task_v1.CreateTaskReq
 	}
 
 	deadline := req.GetDeadline().AsTime()
-	if err != nil {
-		return nil, err
-	}
 
 	if err := h.ts.CreateTask(ctx, req.GetTitle(), req.GetDescription(), userId, projectId, deadline); err != nil {
 		return nil, err
