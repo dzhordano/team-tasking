@@ -15,7 +15,7 @@ type Project struct {
 	UpdatedAt time.Time
 }
 
-func NewProject(projectID, ownerID uuid.UUID, name, description string) *Project {
+func NewProject(projectID, ownerID uuid.UUID, name string) *Project {
 	return &Project{
 		ProjectID: projectID,
 		OwnerID:   ownerID,

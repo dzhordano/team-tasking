@@ -40,8 +40,9 @@ func NewServer(log *slog.Logger, ph *handlers.ProjectHandler, th *handlers.TaskH
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			recovery.UnaryServerInterceptor(recoveryOpts...),
-			logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...)),
-		grpc.UnaryInterceptor(AuthInterceptor(publickey)))
+			logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
+			AuthInterceptor(publickey),
+			ErrorMapperInterceptor()))
 
 	reflection.Register(s)
 

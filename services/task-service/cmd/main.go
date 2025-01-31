@@ -37,7 +37,7 @@ func main() {
 	comment_repo := repository.NewPGCommentRepository(pool)
 
 	project_service := services.NewProjectService(project_repo)
-	task_service := services.NewTaskService(task_repo)
+	task_service := services.NewTaskService(task_repo, project_repo)
 	comment_service := services.NewCommentService(comment_repo)
 
 	grpc_server := grpc.NewServer(

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain"
 	"github.com/dzhordano/team-tasking/services/tasks/internal/domain/repository"
@@ -20,7 +21,9 @@ func NewPGTaskRepository(db *pgxpool.Pool) repository.TaskRepository {
 }
 
 func (t *PGTaskRepository) Save(ctx context.Context, task *domain.Task) error {
-	return nil
+	const op = "repository.PGTaskRepository.Save"
+
+	return fmt.Errorf("%s: %w", op, domain.ErrTaskAlreadyExists)
 }
 
 func (t *PGTaskRepository) List(ctx context.Context, limit, offset uint64) ([]*domain.Task, error) {
@@ -32,6 +35,10 @@ func (t *PGTaskRepository) ListByProject(ctx context.Context, projectID uuid.UUI
 }
 
 func (t *PGTaskRepository) GetById(ctx context.Context, taskID uuid.UUID) (*domain.Task, error) {
+	return nil, nil
+}
+
+func (t *PGTaskRepository) GetByUserId(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
 	return nil, nil
 }
 

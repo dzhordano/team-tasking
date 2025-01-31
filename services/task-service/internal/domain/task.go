@@ -42,7 +42,13 @@ func (t *Task) ChangeStatus(newStatus TaskStatus) error {
 
 	return nil
 }
-func NewTask(taskID, projectID uuid.UUID, title, description, status string, deadline time.Time) *Task {
+
+func (t *Task) SetAssignee(assigneeID uuid.UUID) {
+	t.AssigneeID = assigneeID
+	t.UpdatedAt = time.Now()
+}
+
+func NewTask(taskID, projectID uuid.UUID, title, description string, deadline time.Time) *Task {
 	return &Task{
 		TaskID:      taskID,
 		ProjectID:   projectID,

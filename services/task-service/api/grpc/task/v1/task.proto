@@ -69,8 +69,7 @@ message CreateTaskRequest {
   string project_id = 1;
   string title = 2;
   string description = 3;
-  string status = 4;
-  google.protobuf.Timestamp deadline = 5;
+  google.protobuf.Timestamp deadline = 4;
 }
 
 message AssignTaskRequest {

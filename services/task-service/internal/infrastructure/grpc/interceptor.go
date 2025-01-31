@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/dzhordano/team-tasking/services/tasks/pkg/context/keys"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
@@ -13,8 +14,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
-
-type ctxKey string
 
 func AuthInterceptor(publicKey []byte) grpc.UnaryServerInterceptor {
 	return func(
@@ -52,10 +51,10 @@ func AuthInterceptor(publicKey []byte) grpc.UnaryServerInterceptor {
 
 		userID, ok := claims["sub"].(string)
 		if !ok {
-			return nil, status.Error(codes.Unauthenticated, "user_id not found in token")
+			return nil, status.Error(codes.Unauthenticated, "user_id ('sub' claim) not found in token")
 		}
 
-		ctx = context.WithValue(ctx, ctxKey("sub"), userID)
+		ctx = context.WithValue(ctx, keys.UserIDKey, userID)
 
 		return handler(ctx, req)
 	}
@@ -65,6 +64,22 @@ func InterceptorLogger(l *slog.Logger) logging.Logger {
 	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
 		l.Log(ctx, slog.Level(lvl), msg, fields...)
 	})
+}
+
+func ErrorMapperInterceptor() grpc.UnaryServerInterceptor {
+	return func(
+		ctx context.Context,
+		req any,
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler,
+	) (any, error) {
+		resp, err := handler(ctx, req)
+		if err != nil {
+			return nil, MapError(ctx, err)
+		}
+
+		return resp, nil
+	}
 }
 
 // TODO logging interceptor

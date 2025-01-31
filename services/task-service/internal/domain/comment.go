@@ -16,6 +16,11 @@ type Comment struct {
 	UpdatedAt time.Time
 }
 
+func (c *Comment) SetContent(content string) {
+	c.Content = content
+	c.UpdatedAt = time.Now()
+}
+
 func NewComment(commentID, authorID, taskID uuid.UUID, content string) *Comment {
 	return &Comment{
 		CommentID: commentID,
