@@ -60,7 +60,38 @@ func (p *PGProjectRepository) List(ctx context.Context, limit, offset uint64) ([
 }
 
 func (p *PGProjectRepository) ListByOwner(ctx context.Context, ownerID uuid.UUID) ([]*domain.Project, error) {
-	return nil, nil
+	const op = "repository.PGProjectRepository.ListByOwner"
+
+	selectBuilder := sq.Select("id", "owner_id", "name", "created_at", "updated_at").
+		From(projects_table).
+		Where(sq.Eq{"owner_id": ownerID}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("%s : %w", op, err)
+	}
+
+	rows, err := p.db.Query(ctx, query, args...)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s : %w", op, domain.ErrProjectNotFound)
+		}
+
+		return nil, fmt.Errorf("%s : %w", op, err)
+	}
+	defer rows.Close()
+
+	var projects []*domain.Project
+	for rows.Next() {
+		var project domain.Project
+		if err := rows.Scan(&project.ProjectID, &project.OwnerID, &project.Name, &project.CreatedAt, &project.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("%s : %w", op, err)
+		}
+		projects = append(projects, &project)
+	}
+
+	return projects, nil
 }
 
 func (p *PGProjectRepository) GetById(ctx context.Context, projectID uuid.UUID) (*domain.Project, error) {
@@ -95,6 +126,22 @@ func (p *PGProjectRepository) Update(ctx context.Context, project *domain.Projec
 	return nil
 }
 
+// TODO perhaps make this soft-deletion... or make a separate method archive so that'll be used instead...
 func (p *PGProjectRepository) Delete(ctx context.Context, projectID uuid.UUID) error {
+	const op = "repository.PGProjectRepository.Delete"
+
+	deleteBuilder := sq.Delete(projects_table).
+		Where(sq.Eq{"id": projectID}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := deleteBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	if _, err := p.db.Exec(ctx, query, args...); err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
 	return nil
 }

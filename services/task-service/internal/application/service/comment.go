@@ -55,10 +55,22 @@ func (s *commentService) CreateComment(ctx context.Context, taskID uuid.UUID, au
 }
 
 func (s *commentService) GetUserComments(ctx context.Context, userID uuid.UUID, limit, offset uint64) ([]*domain.Comment, error) {
-	comments, err := s.commentRepository.List(ctx, limit, offset)
+	if limit == 0 {
+		limit = 10 // FIXME magic number
+	}
+
+	comments, err := s.commentRepository.GetUserComments(ctx, userID, limit, offset)
 	if err != nil {
+		s.log.Error("failed to get user comments", slog.String("error", err.Error()))
 		return nil, err
 	}
+
+	if len(comments) == 0 {
+		s.log.Debug("no comments found for user", slog.String("user_id", userID.String()))
+		return nil, domain.ErrNoCommentsFound
+	}
+
+	s.log.Debug("user comments found", slog.String("user_id", userID.String()))
 
 	return comments, nil
 }
@@ -66,31 +78,62 @@ func (s *commentService) GetUserComments(ctx context.Context, userID uuid.UUID, 
 func (s *commentService) GetUserTaskComments(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) ([]*domain.Comment, error) {
 	comments, err := s.commentRepository.GetByTask(ctx, taskID)
 	if err != nil {
+		s.log.Error("failed to get task comments", slog.String("error", err.Error()))
 		return nil, err
 	}
+
+	if len(comments) == 0 {
+		s.log.Debug("no comments found for task", slog.String("task_id", taskID.String()))
+		return nil, domain.ErrNoCommentsFound
+	}
+
+	s.log.Debug("task comments found", slog.String("task_id", taskID.String()))
 
 	return comments, nil
 }
 
-func (s *commentService) UpdateComment(ctx context.Context, content string, commentID uuid.UUID) error {
+func (s *commentService) UpdateComment(ctx context.Context, content string, commentID, userID uuid.UUID) error {
 	comment, err := s.commentRepository.GetById(ctx, commentID)
 	if err != nil {
+		s.log.Error("comment not found", slog.String("comment_id", commentID.String()))
 		return err
+	}
+
+	if comment.AuthorID != userID {
+		s.log.Error("permission denied", slog.String("comment_id", commentID.String()))
+		return domain.ErrCommentNotFound
 	}
 
 	comment.SetContent(content)
 
 	if err := s.commentRepository.Update(ctx, comment); err != nil {
+		s.log.Error("failed to update comment", slog.String("error", err.Error()))
 		return err
 	}
+
+	s.log.Debug("comment updated", slog.String("comment_id", commentID.String()))
 
 	return nil
 }
 
-func (s *commentService) DeleteComment(ctx context.Context, commentID uuid.UUID) error {
-	if err := s.commentRepository.Delete(ctx, commentID); err != nil {
+func (s *commentService) DeleteComment(ctx context.Context, commentID, userID uuid.UUID) error {
+	comment, err := s.commentRepository.GetById(ctx, commentID)
+	if err != nil {
+		s.log.Error("comment not found", slog.String("comment_id", commentID.String()))
 		return err
 	}
+
+	if comment.AuthorID != userID {
+		s.log.Error("permission denied", slog.String("comment_id", commentID.String()))
+		return domain.ErrCommentNotFound
+	}
+
+	if err := s.commentRepository.Delete(ctx, commentID); err != nil {
+		s.log.Error("failed to delete comment", slog.String("error", err.Error()))
+		return err
+	}
+
+	s.log.Debug("comment deleted", slog.String("comment_id", commentID.String()))
 
 	return nil
 }

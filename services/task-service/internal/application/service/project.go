@@ -49,16 +49,33 @@ func (s *projectService) CreateProject(ctx context.Context, title string, ownerI
 func (s *projectService) GetUserProjects(ctx context.Context, userID uuid.UUID) ([]*domain.Project, error) {
 	projects, err := s.projectRepository.ListByOwner(ctx, userID)
 	if err != nil {
+		s.log.Error("failed to get user projects", slog.String("error", err.Error()))
 		return nil, err
 	}
+
+	if len(projects) == 0 {
+		s.log.Debug("no projects found for user", slog.String("user_id", userID.String()))
+		return nil, domain.ErrNoProjectsFound
+	}
+
+	s.log.Debug("user projects found", slog.String("user_id", userID.String()))
 
 	return projects, nil
 }
 
-func (s *projectService) DeleteProject(ctx context.Context, ownerID, projectID uuid.UUID) error {
-	if err := s.projectRepository.Delete(ctx, projectID); err != nil {
+func (s *projectService) DeleteProject(ctx context.Context, userID, projectID uuid.UUID) error {
+	_, err := s.projectRepository.GetByOwner(ctx, userID, projectID)
+	if err != nil {
+		s.log.Error("project not found", slog.String("project_id", projectID.String()))
 		return err
 	}
+
+	if err := s.projectRepository.Delete(ctx, projectID); err != nil {
+		s.log.Error("failed to delete project", slog.String("error", err.Error()))
+		return err
+	}
+
+	s.log.Debug("project deleted", slog.String("project_id", projectID.String()))
 
 	return nil
 }

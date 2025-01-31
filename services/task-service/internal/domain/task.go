@@ -33,7 +33,11 @@ const (
 	TaskARCHIVED   TaskStatus = "ARCHIVED"
 )
 
-func (t *Task) ChangeStatus(newStatus TaskStatus) error {
+func (s TaskStatus) String() string {
+	return string(s)
+}
+
+func (t *Task) SetStatus(newStatus TaskStatus) error {
 	if t.Status == TaskTODO && newStatus == TaskDONE {
 		return errors.New("cannot change status from TODO to DONE")
 	}

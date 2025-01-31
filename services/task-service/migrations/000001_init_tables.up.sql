@@ -14,12 +14,19 @@ CREATE TABLE IF NOT EXISTS tasks (
   id UUID NOT NULL PRIMARY KEY,
   project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
   assignee_id UUID NOT NULL,
-  title TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
   description TEXT NOT NULL,
   status task_status NOT NULL,
   deadline TIMESTAMP,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pending_tasks (
+  task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (task_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS comments (

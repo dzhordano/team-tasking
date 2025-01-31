@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS pending_tasks;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS project;
 DROP TYPE IF EXISTS task_status;

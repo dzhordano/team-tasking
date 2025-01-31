@@ -9,7 +9,7 @@ option go_package = "dzhordano/team-tasking/services/tasks/pkg/grpc/task/v1;task
 
 service ProjectServiceV1 {
   rpc CreateProject(CreateProjectRequest) returns (google.protobuf.Empty);
-  rpc GetUserProjects(GetUserProjectsRequest) returns (GetUserProjectsResponse);
+  rpc GetUserProjects(google.protobuf.Empty) returns (GetUserProjectsResponse);
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty);
 }
 
@@ -17,10 +17,17 @@ service TaskServiceV1 {
   rpc CreateTask(CreateTaskRequest) returns (google.protobuf.Empty);
   rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty);
   rpc GetUserTasks(GetUserTasksRequest) returns (GetUserTasksResponse);
-  rpc GetProjectTasks(GetProjectTasksRequest) returns (GetProjectTasksResponse);
-  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
-  rpc UpdateTask(UpdateTaskRequest) returns (google.protobuf.Empty);
-  rpc DeleteTask(DeleteTaskRequest) returns (google.protobuf.Empty);
+
+  // Not necessary for now.
+  // rpc GetProjectTasks(GetProjectTasksRequest) returns (GetProjectTasksResponse);
+  // rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  // rpc UpdateTask(UpdateTaskRequest) returns (google.protobuf.Empty);
+  // rpc DeleteTask(DeleteTaskRequest) returns (google.protobuf.Empty);
+
+  rpc GetUserPendingTasks(GetUserPendingTasksRequest) returns (GetUserPendingTasksResponse);
+  rpc AcceptTask(AcceptTaskRequest) returns (google.protobuf.Empty);
+  rpc DeclineTask(DeclineTaskRequest) returns (google.protobuf.Empty);
+  rpc FinishTask(FinishTaskRequest) returns (google.protobuf.Empty);
 }
 
 service CommentServiceV1 {
@@ -40,10 +47,6 @@ message Project {
 
 message CreateProjectRequest {
   string name = 1;
-}
-
-message GetUserProjectsRequest {
-  string user_id = 1;
 }
 
 message GetUserProjectsResponse {
@@ -86,33 +89,54 @@ message GetUserTasksResponse {
   repeated Task tasks = 1;
 }
 
-message GetProjectTasksRequest {
-  string project_id = 1;
-  uint64 limit = 2;
-  uint64 offset = 3;
+// message GetProjectTasksRequest {
+//   string project_id = 1;
+//   uint64 limit = 2;
+//   uint64 offset = 3;
+// }
+
+// message GetProjectTasksResponse {
+//   repeated Task tasks = 1;
+// }
+
+// message GetTaskRequest {
+//   string task_id = 1;
+// }
+
+// message GetTaskResponse {
+//   Task task = 1;
+// }
+
+// message UpdateTaskRequest {
+//   string task_id = 1;
+//   string title = 2;
+//   string description = 3;
+//   string status = 4;
+//   google.protobuf.Timestamp deadline = 5;
+// }
+
+// message DeleteTaskRequest {
+//   string task_id = 1;
+// }
+
+message GetUserPendingTasksRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
 }
 
-message GetProjectTasksResponse {
+message GetUserPendingTasksResponse {
   repeated Task tasks = 1;
 }
 
-message GetTaskRequest {
+message AcceptTaskRequest {
   string task_id = 1;
 }
 
-message GetTaskResponse {
-  Task task = 1;
-}
-
-message UpdateTaskRequest {
+message DeclineTaskRequest {
   string task_id = 1;
-  string title = 2;
-  string description = 3;
-  string status = 4;
-  google.protobuf.Timestamp deadline = 5;
 }
 
-message DeleteTaskRequest {
+message FinishTaskRequest {
   string task_id = 1;
 }
 
